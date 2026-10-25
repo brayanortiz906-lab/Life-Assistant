@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LifeSync AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<style>
+:root{--bg:#EDF1F5;--surf:#fff;--ink:#17233A;--mut:#5C6B80;--line:#D5DDE6;--fixed:#33449B;--health:#C8453F;--study:#1F9A82;--rest:#D99A1E;--studyBg:#DDF2EC;--restBg:#FBEFD3;--on:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1626;--surf:#172036;--ink:#E7ECF5;--mut:#9AA8BD;--line:#2A3652;--fixed:#7C8CF0;--health:#F07A72;--study:#3CC4A8;--rest:#E8B04A;--studyBg:#14342F;--restBg:#3A2F14;--on:#0F1626;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1626;--surf:#172036;--ink:#E7ECF5;--mut:#9AA8BD;--line:#2A3652;--fixed:#7C8CF0;--health:#F07A72;--study:#3CC4A8;--rest:#E8B04A;--studyBg:#14342F;--restBg:#3A2F14;--on:#0F1626;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,sans-serif;margin:0}
+h1,h2,h3{font-family:'Bricolage Grotesque',Figtree,sans-serif;font-weight:600}
+button:focus-visible,input:focus-visible{outline:2px solid var(--fixed);outline-offset:2px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {useState,useRef,useEffect}=React;
+const html=htm.bind(React.createElement);
+const DAYS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const N=14, today=new Date();
+const dayInfo=o=>{const d=new Date(today);d.setDate(d.getDate()+o);return{w:DAYS[d.getDay()],n:d.getDate()}};
+const dlabel=o=>{const i=dayInfo(o);return o===0?'hoy':o===1?'mañana':i.w+' '+i.n};
+const fmt=h=>Math.floor(h)+':'+String(Math.round((h%1)*60)).padStart(2,'0');
+const money=v=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(v);
+const TYPES={fixed:{l:'Inamovible',c:'var(--fixed)'},health:{l:'Salud',c:'var(--health)'},study:{l:'Estudio sugerido (flexible)',c:'var(--study)'},rest:{l:'Descanso (flexible)',c:'var(--rest)'}};
+const isFlex=e=>e.type==='study'||e.type==='rest';
+const overlap=(a,b)=>a.d===b.d&&a.s<b.e&&b.s<a.e;
+let uid=100;
+const seed=[
+{id:1,t:'Cálculo I',type:'fixed',d:0,s:8,e:10},{id:2,t:'Física',type:'fixed',d:1,s:10,e:12},
+{id:3,t:'Cálculo I',type:'fixed',d:2,s:8,e:10},{id:4,t:'Física',type:'fixed',d:3,s:10,e:12},
+{id:5,t:'Programación',type:'fixed',d:4,s:14,e:16},
+{id:6,t:'Descanso: caminar',type:'rest',d:0,s:17,e:18},
+{id:7,t:'Repaso de Física',type:'study',d:1,s:15,e:16.5},{id:8,t:'Taller de Programación',type:'study',d:3,s:15,e:17}];
+
+function findSlot(evs,d0,dur,pref){
+  for(let d=d0;d<N;d++){
+    const c=[pref];for(let k=0.5;k<=15;k+=0.5){c.push(pref+k,pref-k)}
+    for(const s of c){const e=s+dur;if(s<7||e>22)continue;
+      if(!evs.some(x=>overlap({d,s,e},x)))return{d,s,e}}}
+  return null}
+function reflow(evs){
+  const out=evs.filter(e=>!isFlex(e)),moved=[];
+  [...evs.filter(isFlex)].sort((a,b)=>a.d-b.d||a.s-b.s).forEach(f=>{
+    if(!out.some(x=>overlap(f,x)))return out.push(f);
+    const sl=findSlot(out,f.d,f.e-f.s,f.s);
+    if(sl){out.push({...f,...sl});moved.push(f.t+' → '+dlabel(sl.d)+' '+fmt(sl.s))}
+    else moved.push(f.t+' (sin hueco libre)')});
+  return{evs:out,moved}}
+
+const TOPICS=['Mapa de conceptos y fórmulas base','Ejercicios guiados del tema 1','Ejercicios guiados del tema 2','Problemas tipo examen','Simulacro cronometrado','Repaso de errores del simulacro','Repaso final ligero'];
+const cat=t=>/almuerzo|comida|cena|caf[eé]|desayuno|snack/i.test(t)?'Alimentación':/bus|taxi|metro|uber|pasaje/i.test(t)?'Transporte':/libro|copias|útiles|impres/i.test(t)?'Académico':'Otros';
+
+function agent(text,evs){
+  const q=text.trim(); let m;
+  if(m=q.match(/examen(?:\s+de)?\s+(.+?)\s+en\s+(\d+)\s+d[ií]as?/i)){
+    const subject=m[1].replace(/^\w/,c=>c.toUpperCase()),n=Math.min(Math.max(+m[2],1),N-1);
+    let cur=[...evs,{id:uid++,t:'Examen: '+subject,type:'fixed',d:n,s:8,e:10}];
+    const r=reflow(cur);cur=r.evs;
+    const days=[];const start=Math.max(0,n-7);
+    for(let d=start;d<n;d++){
+      const topic=TOPICS[Math.min(d-start+(7-(n-start)),6)];
+      const sl=findSlot(cur,d,d===n-1?1:1.5,18);
+      if(sl){cur.push({id:uid++,t:subject+': '+topic,type:'study',...sl});days.push({d,topic,s:sl.s,e:sl.e,done:false})}}
+    const rs=findSlot(cur,n-1,1,20);if(rs)cur.push({id:uid++,t:'Descanso: sin pantallas',type:'rest',...rs});
+    return{evs:cur,plan:{subject,n,days},
+      reply:`Listo. Registré «Examen: ${subject}» para ${dlabel(n)} como evento inamovible y armé ${days.length} bloques de repaso, uno por día, con descanso protegido la noche anterior.`+(r.moved.length?` Moví ${r.moved.length} bloque(s) flexible(s) que chocaban.`:''),
+      json:{intencion:'planificar_examen',eventos:[{accion:'crear',clasificacion:'inamovible',titulo:'Examen: '+subject,dia:n,inicio:'08:00',fin:'10:00'}],plan_estudio:{materia:subject,bloques:days.map(x=>({dia:x.d,hora:fmt(x.s),duracion_h:x.e-x.s,tema:x.topic}))},reorganizados:r.moved}}}
+  const num=q.match(/\$?\s*(\d[\d.,]*)/);
+  if(/gast[eéoó]|pagu[eé]|compr[eé]/i.test(q)&&num){
+    const amount=parseInt(num[1].replace(/[.,]/g,''),10);
+    const dm=q.match(/\ben\s+(.+)$/i);const desc=(dm?dm[1]:q.replace(num[0],'').replace(/gast[eéoó]( de)?|pagu[eé]|compr[eé]/i,'')).trim()||'Gasto';
+    const exp={id:uid++,desc:desc.replace(/^\w/,c=>c.toUpperCase()),amount,cat:cat(q)};
+    return{evs,expense:exp,reply:`Anotado: ${money(amount)} en ${exp.desc.toLowerCase()} (${exp.cat}).`,
+      json:{intencion:'registrar_gasto',bitacora_finanzas:{monto:amount,moneda:'COP',descripcion:exp.desc,categoria:exp.cat}}}}
+  if(/cita|m[eé]dic|dentista|doctor|reuni[oó]n|compromiso|entrega/i.test(q)){
+    let d=0;const x=q.match(/en\s+(\d+)\s+d[ií]as?/i);
+    if(/ma[ñn]ana/i.test(q))d=1;else if(x)d=Math.min(+x[1],N-1);
+    const hm=q.replace(/en\s+\d+\s+d[ií]as?/i,'').match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+    let h=15;if(hm){h=+hm[1]+(hm[2]?+hm[2]/60:0);if(/pm/i.test(hm[3]||'')&&h<12)h+=12;else if(!hm[3]&&h<7)h+=12}
+    const health=/cita|m[eé]dic|dentista|doctor/i.test(q);
+    const title=health?(/dentista/i.test(q)?'Cita con dentista':'Cita médica'):'Compromiso personal';
+    const ev={id:uid++,t:title,type:health?'health':'fixed',d,s:h,e:h+1};
+    const r=reflow([...evs,ev]);
+    return{evs:r.evs,reply:`Agregué «${title}» ${dlabel(d)} a las ${fmt(h)} como inamovible.`+(r.moved.length?` Reorganicé ${r.moved.length} bloque(s) flexible(s) para no traslapar: ${r.moved.join('; ')}.`:' No chocó con nada.'),
+      json:{intencion:'agregar_evento_inamovible',eventos:[{accion:'crear',clasificacion:'inamovible',categoria:health?'salud':'compromiso',titulo:title,dia:d,inicio:fmt(h),fin:fmt(h+1)}],reorganizados:r.moved}}}
+  return{evs,reply:'Puedo registrar exámenes («Tengo examen de cálculo en 8 días»), gastos («Gasto de $15.000 en almuerzo») y citas («Cita médica mañana 3pm»). ¿Cuál quieres probar?',json:{intencion:'aclarar',pregunta:'¿Qué quieres registrar?'}}}
+
+const chip=e=>{const f=!isFlex(e);
+  const st=f?{background:TYPES[e.type].c,color:'var(--on)'}:{background:e.type==='study'?'var(--studyBg)':'var(--restBg)',border:'1.5px dashed '+TYPES[e.type].c,color:'var(--ink)'};
+  return html`<div key=${e.id} style=${st} className="rounded-md px-2 py-1 mb-1.5 text-xs leading-snug">
+    <div className="font-semibold">${fmt(e.s)}–${fmt(e.e)}</div><div>${e.t}</div></div>`};
+
+function Calendar({evs}){
+  return html`<div className="overflow-x-auto pb-1"><div className="flex gap-2 min-w-max">
+  ${Array.from({length:N},(_,d)=>{const i=dayInfo(d);const l=evs.filter(e=>e.d===d).sort((a,b)=>a.s-b.s);
+    return html`<div key=${d} className="w-32 shrink-0 rounded-lg p-2 border" style=${{borderColor:d===0?'var(--fixed)':'var(--line)',borderWidth:d===0?2:1}}>
+      <div className="text-sm font-semibold mb-2">${i.w} ${i.n}${d===0?' (hoy)':''}</div>
+      ${l.length?l.map(chip):html`<div className="text-xs" style=${{color:'var(--mut)'}}>Libre</div>`}</div>`})}
+  </div></div>`}
+
+function App(){
+  const [evs,setEvs]=useState(seed),[msgs,setMsgs]=useState([{r:'a',t:'Hola, soy tu asistente de planificación. Cuéntame de un examen, un gasto o una cita y yo ajusto tu semana.'}]);
+  const [plans,setPlans]=useState([]),[exp,setExp]=useState([{id:1,desc:'Pasaje',amount:4000,cat:'Transporte'}]);
+  const [tab,setTab]=useState('g'),[input,setInput]=useState(''),[sync,setSync]=useState(false);
+  const end=useRef(null);useEffect(()=>{end.current&&end.current.scrollIntoView({block:'nearest'})},[msgs]);
+  const send=t=>{if(!t.trim())return;const r=agent(t,evs);
+    setMsgs(m=>[...m,{r:'u',t},{r:'a',t:r.reply,json:r.json}]);setEvs(r.evs);
+    if(r.plan)setPlans(p=>[r.plan,...p.filter(x=>x.subject!==r.plan.subject)]);
+    if(r.expense)setExp(x=>[r.expense,...x]);setInput('')};
+  const toggle=(pi,di)=>setPlans(p=>p.map((x,i)=>i!==pi?x:{...x,days:x.days.map((y,j)=>j===di?{...y,done:!y.done}:y)}));
+  const card='rounded-xl p-4 border';const cs={background:'var(--surf)',borderColor:'var(--line)'};
+  const total=exp.reduce((a,b)=>a+b.amount,0);
+  const citas=evs.filter(e=>e.type==='health').sort((a,b)=>a.d-b.d||a.s-b.s);
+  const ex=['Tengo examen de cálculo en 8 días','Gasto de $15.000 en almuerzo','Cita médica mañana 3pm'];
+  return html`<div className="max-w-7xl mx-auto p-4 md:p-6">
+  <header className="flex flex-wrap items-center justify-between gap-3 mb-5">
+    <div><h1 className="text-2xl md:text-3xl">LifeSync AI</h1><p className="text-sm" style=${{color:'var(--mut)'}}>Tu semana, ordenada antes de que se desborde.</p></div>
+    <button onClick=${()=>{if(!sync){setSync(true);send('Examen de Programación en 5 días')}}} className="text-sm rounded-lg px-3 py-2 border font-medium" style=${{borderColor:'var(--line)',background:'var(--surf)'}}>
+      ${sync?'Google Calendar sincronizado (simulado)':'Sincronizar Google Calendar (simulado)'}</button>
+  </header>
+  <div className="grid lg:grid-cols-[360px_1fr] gap-4">
+    <section className=${card+' flex flex-col lg:h-[calc(100vh-130px)] lg:sticky lg:top-4'} style=${cs} aria-label="Asistente">
+      <h2 className="text-lg mb-3">Asistente</h2>
+      <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[420px] lg:max-h-none">
+      ${msgs.map((m,i)=>html`<div key=${i} className=${m.r==='u'?'flex justify-end':''}>
+        <div className="rounded-xl px-3 py-2 text-sm max-w-[92%]" style=${m.r==='u'?{background:'var(--fixed)',color:'var(--on)'}:{background:'var(--bg)'}}>
+          ${m.t}${m.json&&html`<details className="mt-2 text-xs"><summary className="cursor-pointer" style=${{color:'var(--mut)'}}>Ver respuesta JSON del agente</summary>
+          <pre className="mt-1 overflow-x-auto whitespace-pre-wrap break-words">${JSON.stringify(m.json,null,1)}</pre></details>`}
+        </div></div>`)}<div ref=${end}></div></div>
+      <div className="flex flex-wrap gap-1.5 my-3">${ex.map(t=>html`<button key=${t} onClick=${()=>send(t)} className="text-xs rounded-full px-2.5 py-1 border" style=${{borderColor:'var(--line)'}}>${t}</button>`)}</div>
+      <div className="flex gap-2"><input value=${input} onChange=${e=>setInput(e.target.value)} onKeyDown=${e=>e.key==='Enter'&&send(input)} placeholder="Escribe aquí…" aria-label="Mensaje" className="flex-1 min-w-0 rounded-lg px-3 py-2 text-sm border" style=${{background:'var(--bg)',borderColor:'var(--line)',color:'var(--ink)'}}/>
+      <button onClick=${()=>send(input)} className="rounded-lg px-4 text-sm font-semibold" style=${{background:'var(--fixed)',color:'var(--on)'}}>Enviar</button></div>
+    </section>
+    <div className="space-y-4 min-w-0">
+      <section className=${card} style=${cs} aria-label="Calendario">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3"><h2 className="text-lg">Calendario</h2>
+          <div className="flex flex-wrap gap-3 text-xs">${Object.entries(TYPES).map(([k,v])=>html`<span key=${k} className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-sm" style=${k==='study'||k==='rest'?{border:'1.5px dashed '+v.c,background:k==='study'?'var(--studyBg)':'var(--restBg)'}:{background:v.c}}></span>${v.l}</span>`)}</div></div>
+        <${Calendar} evs=${evs}/></section>
+      <div className="grid md:grid-cols-2 gap-4">
+        <section className=${card} style=${cs} aria-label="Plan de estudio">
+          <h2 className="text-lg mb-3">Plan de estudio activo</h2>
+          ${plans.length===0?html`<p className="text-sm" style=${{color:'var(--mut)'}}>Aún no hay exámenes. Escribe «Tengo examen de química en 6 días» y armo el plan día a día.</p>`:
+          plans.map((p,pi)=>html`<div key=${p.subject} className="mb-4"><div className="font-semibold text-sm mb-1">${p.subject}: examen ${dlabel(p.n)}</div>
+            <ul className="space-y-1">${p.days.map((x,di)=>html`<li key=${di}><label className="flex gap-2 items-start text-sm cursor-pointer">
+              <input type="checkbox" checked=${x.done} onChange=${()=>toggle(pi,di)} className="mt-1"/>
+              <span style=${{textDecoration:x.done?'line-through':'none',opacity:x.done?.55:1}}><b>${dlabel(x.d)} ${fmt(x.s)}</b> ${x.topic}</span></label></li>`)}</ul></div>`)}
+        </section>
+        <section className=${card} style=${cs} aria-label="Bitácora">
+          <div className="flex gap-2 mb-3"><h2 className="text-lg mr-auto">Bitácora</h2>
+          ${[['g','Gastos'],['c','Citas']].map(([k,l])=>html`<button key=${k} onClick=${()=>setTab(k)} className="text-sm rounded-md px-3 py-1 border" style=${tab===k?{background:'var(--fixed)',color:'var(--on)',borderColor:'var(--fixed)'}:{borderColor:'var(--line)'}}>${l}</button>`)}</div>
+          ${tab==='g'?html`<div><div className="text-sm mb-2" style=${{color:'var(--mut)'}}>Total registrado: <b style=${{color:'var(--ink)'}}>${money(total)}</b></div>
+            <ul className="divide-y text-sm" style=${{borderColor:'var(--line)'}}>${exp.map(x=>html`<li key=${x.id} className="flex justify-between py-1.5 gap-2"><span>${x.desc} <span className="text-xs" style=${{color:'var(--mut)'}}>(${x.cat})</span></span><b>${money(x.amount)}</b></li>`)}</ul></div>`:
+          html`<ul className="space-y-2 text-sm">${citas.length?citas.map(c=>html`<li key=${c.id} className="rounded-md px-3 py-2" style=${{background:'var(--health)',color:'var(--on)'}}><b>${c.t}</b><br/>${dlabel(c.d)}, ${fmt(c.s)}–${fmt(c.e)}</li>`):html`<li style=${{color:'var(--mut)'}}>Sin citas. Prueba «Cita médica mañana 3pm».</li>`}</ul>`}
+        </section>
+      </div>
+    </div>
+  </div></div>`}
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
