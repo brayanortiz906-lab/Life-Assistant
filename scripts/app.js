@@ -176,7 +176,7 @@ const ActionHandlers = {
 **Sistema:** "ayuda", "atajos", "backup"
 
 **Enseñar palabras:** "aprende: [palabra] = [categoría]" (ej: "aprende: gym = bienestar")
-**Ver stats:** "stats chat"`;
+**Ver stats:** "stats chat"`,
     shortcuts: () => `⌨️ **Atajos:**
 - Enter: Enviar mensaje
 - Escape: Cerrar chat
