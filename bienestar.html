@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bienestar – Mi Asistente</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/app.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="dark">
+  <header class="top-bar">
+    <a href="index.html" class="logo flex items-center gap-2">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Mi Asistente
+    </a>
+    <nav class="nav">
+      <a href="agenda.html">Agenda</a>
+      <a href="estudios.html">Estudios</a>
+      <a href="finanzas.html">Finanzas</a>
+      <a href="bienestar.html" class="text-accent">Bienestar</a>
+      <a href="#" onclick="openChat()">Chat IA</a>
+    </nav>
+  </header>
+
+  <main class="canvas">
+    <header class="mb-6">
+      <h1 class="text-2xl font-bold">Bienestar & Salud</h1>
+      <p class="text-slate-400">Tracking de hidratación, sueño, ejercicio y nutrición</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div id="water-detail"></div>
+      <div id="sleep-detail"></div>
+      <div id="exercise-detail"></div>
+      <div id="nutrition-detail"></div>
+    </div>
+
+    <!-- Weight & Body Tracking -->
+    <div class="mt-6 panel p-6">
+      <h3 class="font-semibold mb-4 flex items-center gap-2"><span class="text-2xl">⚖️</span> Peso y Medidas</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-slate-800/30 p-4 rounded-xl text-center">
+          <p class="text-sm text-slate-400">Peso actual</p>
+          <p class="text-3xl font-bold text-white" id="weight-current">– kg</p>
+        </div>
+        <div class="bg-slate-800/30 p-4 rounded-xl text-center">
+          <p class="text-sm text-slate-400">Meta</p>
+          <p class="text-3xl font-bold text-amber-400" id="weight-target">– kg</p>
+        </div>
+        <div class="bg-slate-800/30 p-4 rounded-xl text-center">
+          <p class="text-sm text-slate-400">Diferencia</p>
+          <p class="text-3xl font-bold text-cyan-400" id="weight-diff">–</p>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <input type="number" step="0.1" id="weight-input" placeholder="Peso (kg)" class="input w-32">
+        <input type="number" step="0.1" id="target-input" placeholder="Meta (kg)" class="input w-32">
+        <button class="btn primary" onclick="BienestarSystem.logWeight()">Registrar peso</button>
+      </div>
+      <canvas id="weight-chart" class="w-full h-48 mt-4"></canvas>
+    </div>
+
+    <!-- Habits / Streaks -->
+    <div class="mt-6 panel p-6">
+      <h3 class="font-semibold mb-4 flex items-center gap-2"><span class="text-2xl">🔥</span> Rachas y Hábitos</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="streaks-grid"></div>
+    </div>
+  </main>
+
+  <script src="scripts/bienestar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      BienestarSystem.init();
+      BienestarSystem.renderFullInterface();
+      BienestarSystem.renderWeightChart();
+      BienestarSystem.renderStreaks();
+    });
+  </script>
+</body>
+</html>

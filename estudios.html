@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estudios – Mi Asistente</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/app.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="dark">
+  <header class="top-bar">
+    <a href="index.html" class="logo flex items-center gap-2">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Mi Asistente
+    </a>
+    <nav class="nav">
+      <a href="agenda.html">Agenda</a>
+      <a href="estudios.html" class="text-accent">Estudios</a>
+      <a href="finanzas.html">Finanzas</a>
+      <a href="bienestar.html">Bienestar</a>
+      <a href="#" onclick="openChat()">Chat IA</a>
+    </nav>
+  </header>
+
+  <main class="canvas">
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold">Estudios & Cursos</h1>
+        <p class="text-slate-400">Tu progreso de aprendizaje y resúmenes IA</p>
+      </div>
+      <button class="btn primary" id="add-course-btn">
+        <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        Nuevo Curso
+      </button>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="panel p-4 text-center">
+        <p class="text-2xl font-bold" id="total-courses">3</p>
+        <p class="text-xs text-slate-400">Cursos activos</p>
+      </div>
+      <div class="panel p-4 text-center">
+        <p class="text-2xl font-bold" id="total-progress">28%</p>
+        <p class="text-xs text-slate-400">Progreso medio</p>
+      </div>
+      <div class="panel p-4 text-center">
+        <p class="text-2xl font-bold" id="total-modules">19</p>
+        <p class="text-xs text-slate-400">Módulos totales</p>
+      </div>
+      <div class="panel p-4 text-center">
+        <p class="text-2xl font-bold" id="total-hours">38h</p>
+        <p class="text-xs text-slate-400">Horas estimadas</p>
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="flex flex-wrap gap-2 mb-6" role="tablist">
+      <button class="btn px-4 py-2 rounded-lg active" data-filter="all" role="tab">Todos</button>
+      <button class="btn px-4 py-2 rounded-lg" data-filter="in-progress" role="tab">En progreso</button>
+      <button class="btn px-4 py-2 rounded-lg" data-filter="not-started" role="tab">No iniciados</button>
+      <button class="btn px-4 py-2 rounded-lg" data-filter="completed" role="tab">Completados</button>
+    </div>
+
+    <!-- Courses Grid -->
+    <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+    <!-- Course Detail View (hidden by default) -->
+    <div id="course-detail" class="hidden"></div>
+  </main>
+
+  <!-- Module Modal -->
+  <div id="module-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+    <div id="module-content" class="w-full max-w-3xl max-h-[85vh] overflow-y-auto"></div>
+  </div>
+
+  <!-- Summary Modal -->
+  <div id="summary-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-2xl animate-slide-up">
+      <header class="flex justify-between items-center mb-4 sticky top-0 bg-slate-900 pb-4 z-10">
+        <h3 id="summary-title" class="text-lg font-bold">Resumen</h3>
+        <button class="btn" id="close-summary-modal"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </header>
+      <div id="summary-content" class="prose prose-invert max-w-none"></div>
+    </div>
+  </div>
+
+  <!-- Add Course Modal -->
+  <div id="add-course-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[80vh] overflow-y-auto animate-slide-up">
+      <header class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold">Nuevo Curso</h3>
+        <button class="btn" id="close-add-course-modal"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </header>
+      <form id="add-course-form" class="space-y-4">
+        <div><label class="block text-sm font-medium mb-1">Título</label><input type="text" id="new-course-title" class="input w-full" placeholder="Ej: Machine Learning Avanzado" required></div>
+        <div><label class="block text-sm font-medium mb-1">Descripción</label><textarea id="new-course-desc" class="input w-full min-h-[80px]" placeholder="Descripción del curso"></textarea></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-sm font-medium mb-1">Categoría</label><select id="new-course-category" class="input w-full"><option value="IA">IA</option><option value="Programación">Programación</option><option value="Arquitectura">Arquitectura</option><option value="Diseño">Diseño</option><option value="Negocios">Negocios</option><option value="Otro">Otro</option></select></div>
+          <div><label class="block text-sm font-medium mb-1">Color</label><input type="color" id="new-course-color" class="input w-16 h-10 rounded" value="#6366f1"></div>
+        </div>
+        <div><label class="block text-sm font-medium mb-1">Módulos (uno por línea: Título | Duración en min)</label><textarea id="new-course-modules" class="input w-full min-h-[120px]" placeholder="Fundamentos | 45&#10;Avanzado | 60&#10;Proyecto Final | 120"></textarea></div>
+        <div class="flex justify-end gap-3 pt-4 border-t border-border"><button type="button" class="btn" id="cancel-add-course-modal">Cancelar</button><button type="submit" class="btn primary">Crear Curso</button></div>
+      </form>
+    </div>
+  </div>
+
+  <script src="scripts/estudios.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      EstudiosSystem.init();
+    });
+  </script>
+</body>
+</html>

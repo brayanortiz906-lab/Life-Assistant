@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda – Mi Asistente</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/app.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="dark">
+  <header class="top-bar">
+    <a href="index.html" class="logo flex items-center gap-2">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Mi Asistente
+    </a>
+    <nav class="nav">
+      <a href="agenda.html" class="text-accent">Agenda</a>
+      <a href="estudios.html">Estudios</a>
+      <a href="finanzas.html">Finanzas</a>
+      <a href="bienestar.html">Bienestar</a>
+      <a href="#" onclick="openChat()">Chat IA</a>
+    </nav>
+  </header>
+
+  <main class="canvas">
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold">Agenda & Calendario</h1>
+        <p class="text-slate-400">Gestiona tus eventos, recordatorios y reuniones</p>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <button class="btn" onclick="AgendaSystem.goToToday()">Hoy</button>
+        <div class="flex items-center gap-1 bg-slate-800/50 rounded-lg p-1 border border-slate-700/50 ml-2">
+          <button class="btn px-3 py-1.5 text-sm rounded-md data-view="month" onclick="AgendaSystem.setViewMode('month')" title="Vista mensual">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </button>
+          <button class="btn px-3 py-1.5 text-sm rounded-md data-view="week" onclick="AgendaSystem.setViewMode('week')" title="Vista semanal">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          </button>
+          <button class="btn px-3 py-1.5 text-sm rounded-md data-view="day" onclick="AgendaSystem.setViewMode('day')" title="Vista diaria">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </button>
+        </div>
+        <button class="btn" id="cal-prev"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+        <span id="calendar-month" class="font-medium min-w-[140px] text-center"></span>
+        <button class="btn" id="cal-next"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
+        <button class="btn primary" onclick="AgendaSystem.openEventModal()"><svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Nuevo Evento</button>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <!-- Calendar -->
+      <div class="lg:col-span-2">
+        <div class="panel p-0 overflow-hidden" style="min-height: calc(100vh - 200px);">
+          <div id="calendar-grid" class="grid grid-cols-7 gap-1 p-4"></div>
+        </div>
+      </div>
+
+      <!-- Events list + Upcoming -->
+      <div class="space-y-4">
+        <div class="panel p-4">
+          <header class="flex justify-between items-center mb-4">
+            <h3 class="font-medium">Eventos del día</h3>
+            <button class="btn text-xs" onclick="AgendaSystem.openEventModal()">
+              <svg class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            </button>
+          </header>
+          <div id="events-list"></div>
+        </div>
+
+        <div class="panel p-4">
+          <h3 class="font-medium mb-4">Próximos 7 días</h3>
+          <div id="upcoming-events" class="space-y-2"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Event Modal -->
+  <div id="event-modal-overlay" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 rounded-2xl p-6 w-full max-w-md shadow-2xl animate-slide-up">
+      <header class="flex justify-between items-center mb-4">
+        <h3 id="event-modal-title" class="text-lg font-bold">Nuevo Evento</h3>
+        <button class="btn" onclick="AgendaSystem.closeEventModal()"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </header>
+      <form id="event-form" onsubmit="AgendaSystem.saveEvent(event)" class="space-y-4">
+        <input type="hidden" id="event-id">
+        <div><label class="block text-sm font-medium mb-1">Título</label><input type="text" id="event-title" class="input w-full" placeholder="Título del evento" required></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-sm font-medium mb-1">Fecha</label><input type="date" id="event-date" class="input w-full" required></div>
+          <div><label class="block text-sm font-medium mb-1">Tipo</label><select id="event-type" class="input w-full"><option value="work">Trabajo</option><option value="study">Estudio</option><option value="health">Salud</option><option value="personal">Personal</option><option value="other">Otro</option></select></div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-sm font-medium mb-1">Inicio</label><input type="time" id="event-start" class="input w-full" required></div>
+          <div><label class="block text-sm font-medium mb-1">Fin</label><input type="time" id="event-end" class="input w-full" required></div>
+        </div>
+        <div><label class="block text-sm font-medium mb-1">Color</label><input type="color" id="event-color" class="input w-16 h-10 rounded" value="#e5484d"></div>
+        <div class="flex justify-end gap-3 pt-4 border-t border-border"><button type="button" class="btn" onclick="AgendaSystem.closeEventModal()">Cancelar</button><button type="submit" class="btn primary">Guardar Evento</button></div>
+      </form>
+    </div>
+  </div>
+
+  <script src="scripts/agenda.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      AgendaSystem.init();
+    });
+  </script>
+</body>
+</html>

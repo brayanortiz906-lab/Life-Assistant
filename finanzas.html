@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finanzas – Mi Asistente</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/app.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="dark">
+  <header class="top-bar">
+    <a href="index.html" class="logo flex items-center gap-2">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Mi Asistente
+    </a>
+    <nav class="nav">
+      <a href="agenda.html">Agenda</a>
+      <a href="estudios.html">Estudios</a>
+      <a href="finanzas.html" class="text-accent">Finanzas</a>
+      <a href="bienestar.html">Bienestar</a>
+      <a href="#" onclick="openChat()">Chat IA</a>
+    </nav>
+  </header>
+
+  <main class="canvas">
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold">Finanzas</h1>
+        <p class="text-slate-400">Control de gastos, ingresos y presupuestos</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="month-select" class="input py-2 px-3 min-w-[160px]">
+          <option value="2026-10">Octubre 2026</option>
+          <option value="2026-09">Septiembre 2026</option>
+          <option value="2026-08">Agosto 2026</option>
+        </select>
+        <button class="btn primary" data-action="add-income"><svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Ingreso</button>
+        <button class="btn" data-action="add-expense"><svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>Gasto</button>
+      </div>
+    </header>
+
+    <span id="expense-amount" style="display:none;"></span>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="panel p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="kpi-label">Ingresos</span>
+          <span class="pill pos text-xs" id="income-trend">+12%</span>
+        </div>
+        <div class="kpi-value text-green-400" id="fin-income">$1,500.00</div>
+        <div class="progress-bar mt-2"><div class="progress-fill" style="width: 100%; background: linear-gradient(90deg, #22c55e, #16a34a);"></div></div>
+      </div>
+
+      <div class="panel p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="kpi-label">Gastos</span>
+          <span class="pill neg text-xs" id="expense-trend">+8%</span>
+        </div>
+        <div class="kpi-value text-red-400" id="fin-expenses">$87.40</div>
+        <div class="progress-bar mt-2"><div class="progress-fill" style="width: 45%; background: linear-gradient(90deg, #ef4444, #dc2626);"></div></div>
+      </div>
+
+      <div class="panel p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="kpi-label">Balance</span>
+          <span class="pill pos text-xs">Ahorro neto</span>
+        </div>
+        <div class="kpi-value text-cyan-400" id="fin-balance">$1,412.60</div>
+        <div class="progress-bar mt-2"><div class="progress-fill" style="width: 85%; background: linear-gradient(90deg, #06b6d4, #0891b2);"></div></div>
+      </div>
+
+      <div class="panel p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="kpi-label">Ahorro</span>
+          <span class="pill" style="background:#e5a93b22; color:#e5a93b" id="savings-rate">18%</span>
+        </div>
+        <div class="kpi-value text-amber-400" id="fin-savings">$270.00</div>
+        <div class="progress-bar mt-2"><div class="progress-fill" style="width: 60%; background: linear-gradient(90deg, #e5a93b, #d97706);"></div></div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <!-- Sidebar -->
+      <div class="lg:col-span-1 space-y-4">
+        <!-- Quick Stats -->
+        <div class="panel p-4">
+          <h4 class="font-medium mb-4 flex items-center gap-2"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg> Presupuestos</h4>
+          <div id="budgets-quick" class="space-y-3"></div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="panel p-4">
+          <h4 class="font-medium mb-4 flex items-center gap-2"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Acciones rápidas</h4>
+          <div class="space-y-2">
+            <button class="btn w-full justify-start gap-3" data-action="add-expense">
+              <span class="w-8 h-8 rounded-lg flex items-center justify-center bg-red-500/20"><svg class="h-4 w-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg></span>
+              <span>Registrar gasto</span>
+            </button>
+            <button class="btn w-full justify-start gap-3" data-action="add-income">
+              <span class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-500/20"><svg class="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg></span>
+              <span>Registrar ingreso</span>
+            </button>
+            <button class="btn w-full justify-start gap-3" data-action="show-reports">
+              <span class="w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-500/20"><svg class="h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>
+              <span>Ver reportes</span>
+            </button>
+            <button class="btn w-full justify-start gap-3" data-action="export-csv">
+              <span class="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-500/20"><svg class="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></span>
+              <span>Exportar CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Monthly Comparison -->
+        <div class="panel p-4">
+          <h4 class="font-medium mb-4 flex items-center gap-2"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg> Este mes vs anterior</h4>
+          <div class="space-y-3" id="month-comparison">
+            <div class="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-500/20"><svg class="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg></span>
+                <div>
+                  <p class="font-medium text-sm">Ingresos</p>
+                  <p class="text-xs text-slate-400">vs mes anterior</p>
+                </div>
+              </div>
+              <span class="font-bold text-green-400" id="income-vs-prev">+12%</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg flex items-center justify-center bg-red-500/20"><svg class="h-4 w-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg></span>
+                <div>
+                  <p class="font-medium text-sm">Gastos</p>
+                  <p class="text-xs text-slate-400">vs mes anterior</p>
+                </div>
+              </div>
+              <span class="font-bold text-red-400" id="expense-vs-prev">+8%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="lg:col-span-3 space-y-4">
+        <!-- Chart -->
+        <div class="panel p-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-medium">Gastos por categoría</h3>
+            <div class="flex gap-2">
+              <button class="btn text-xs" id="chart-bar-btn">Barras</button>
+              <button class="btn text-xs" id="chart-pie-btn">Circular</button>
+            </div>
+          </div>
+          <div class="h-64">
+            <canvas id="finance-chart" class="w-full h-64"></canvas>
+          </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="panel p-4">
+          <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <h3 class="font-medium">Todas las transacciones</h3>
+            <div class="flex flex-wrap gap-2">
+              <select id="filter-type" class="input py-2 px-3 min-w-[120px]" onchange="FinanzasSystem.applyFilters()">
+                <option value="">Todos los tipos</option>
+                <option value="expense">Gastos</option>
+                <option value="income">Ingresos</option>
+              </select>
+              <select id="filter-category" class="input py-2 px-3 min-w-[140px]">
+                <option value="">Todas las categorías</option>
+              </select>
+              <button class="btn primary" data-action="add-expense">+ Gasto</button>
+              <button class="btn" data-action="add-income">+ Ingreso</button>
+            </div>
+          </header>
+          <div id="transactions-table" class="table-wrap"></div>
+        </div>
+
+        <!-- Budgets Manager -->
+        <div class="panel p-4">
+          <h3 class="font-medium mb-4">Gestión de presupuestos</h3>
+          <div id="budgets-manager" class="space-y-2"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Transaction Modal -->
+  <div id="transaction-modal-overlay" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 rounded-2xl p-6 w-full max-w-md shadow-2xl animate-slide-up">
+      <header class="flex justify-between items-center mb-4">
+        <h3 id="modal-title-fin" class="text-lg font-bold">Nuevo Gasto</h3>
+        <button class="btn" id="close-transaction-modal"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </header>
+      <form id="transaction-form" class="space-y-4">
+        <input type="hidden" id="trans-id"><input type="hidden" id="trans-type">
+        <div><label class="block text-sm font-medium mb-1">Monto</label><input type="number" step="0.01" min="0" id="trans-amount" class="input w-full" placeholder="0.00" required></div>
+        <div><label class="block text-sm font-medium mb-1">Categoría</label><select id="trans-category" class="input w-full" required></select></div>
+        <div><label class="block text-sm font-medium mb-1">Descripción</label><input type="text" id="trans-description" class="input w-full" placeholder="Descripción" required></div>
+        <div><label class="block text-sm font-medium mb-1">Fecha</label><input type="date" id="trans-date" class="input w-full" required></div>
+        <div class="flex justify-end gap-3 pt-4 border-t border-border"><button type="button" class="btn" id="cancel-transaction-modal">Cancelar</button><button type="submit" class="btn primary">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+
+  <script src="scripts/finanzas.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      FinanzasSystem.init();
+      FinanzasSystem.renderFullInterface();
+    });
+  </script>
+</body>
+</html>
