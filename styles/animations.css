@@ -1,22 +1,22 @@
-/* Animaciones y Transiciones - App CSS Extension */
+/* Animaciones Avanzadas - Sistema Completo */
 @keyframes slideInUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from { transform: translateY(40px) scale(0.95); opacity: 0; filter: blur(4px); }
+  to { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
 }
 
 @keyframes slideInDown {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from { transform: translateY(-40px) scale(0.95); opacity: 0; filter: blur(4px); }
+  to { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
 }
 
 @keyframes slideInLeft {
-  from { transform: translateX(-20px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from { transform: translateX(-40px) scale(0.95); opacity: 0; }
+  to { transform: translateX(0) scale(1); opacity: 1; }
 }
 
 @keyframes slideInRight {
-  from { transform: translateX(20px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from { transform: translateX(40px) scale(0.95); opacity: 0; }
+  to { transform: translateX(0) scale(1); opacity: 1; }
 }
 
 @keyframes fadeIn {
@@ -25,18 +25,24 @@
 }
 
 @keyframes scaleIn {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from { transform: scale(0.8); opacity: 0; filter: blur(8px); }
+  to { transform: scale(1); opacity: 1; filter: blur(0); }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-10px) rotate(1deg); }
 }
 
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 20px rgba(198, 242, 78, 0.3); }
-  50% { box-shadow: 0 0 30px rgba(198, 242, 78, 0.5); }
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(198, 242, 78, 0.3), 0 0 40px rgba(198, 242, 78, 0.1);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(198, 242, 78, 0.5), 0 0 60px rgba(198, 242, 78, 0.2);
+    transform: scale(1.02);
+  }
 }
 
 @keyframes shimmer {
@@ -44,11 +50,38 @@
   100% { background-position: 200% 0; }
 }
 
-/* Animaciones para la navegación superior */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes rotate3d {
+  0% { transform: perspective(1000px) rotateY(0deg); }
+  100% { transform: perspective(1000px) rotateY(360deg); }
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+/* ==============================
+   NAVEGACIÓN SUPERIOR
+   ============================== */
 .top-bar {
-  animation: slideInDown 0.5s ease-out;
+  animation: slideInDown 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  overflow: hidden;
+  background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(10,10,10,0.95) 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 .top-bar::before {
@@ -62,22 +95,23 @@
   animation: shimmer 3s infinite;
 }
 
-/* Animación hover en enlaces de navegación */
 .nav a {
   position: relative;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 8px 16px;
+  border-radius: 8px;
 }
 
 .nav a::after {
   content: '';
   position: absolute;
-  bottom: -4px;
+  bottom: -2px;
   left: 50%;
   width: 0;
   height: 2px;
-  background: var(--accent);
+  background: linear-gradient(90deg, var(--accent), #a8e93a);
   transform: translateX(-50%);
-  transition: width 0.3s ease;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav a:hover::after,
@@ -85,50 +119,107 @@
   width: 100%;
 }
 
-/* Animación float para el ícono principal */
-.top-bar .logo svg {
-  animation: float 3s ease-in-out infinite;
+.nav a:hover {
+  background: rgba(198, 242, 78, 0.1);
+  transform: translateY(-1px);
 }
 
-/* Animación para las cards del dashboard */
+.top-bar .logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.top-bar .logo svg {
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(198, 242, 78, 0.5));
+}
+
+/* ==============================
+   DASHBOARD CARDS
+   ============================== */
+.canvas {
+  animation: fadeIn 0.8s ease-out;
+  padding: 24px;
+}
+
 .panel {
-  animation: slideInUp 0.6s ease-out backwards;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  transition: left 0.6s ease;
+}
+
+.panel:hover::before {
+  left: 100%;
 }
 
 .panel:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 20px rgba(198, 242, 78, 0.1);
+  border-color: rgba(198, 242, 78, 0.3);
 }
 
 .panel:nth-child(1) { animation-delay: 0.1s; }
-.panel:nth-child(2) { animation-delay: 0.2s; }
-.panel:nth-child(3) { animation-delay: 0.3s; }
-.panel:nth-child(4) { animation-delay: 0.4s; }
+.panel:nth-child(2) { animation-delay: 0.15s; }
+.panel:nth-child(3) { animation-delay: 0.2s; }
+.panel:nth-child(4) { animation-delay: 0.25s; }
+.panel:nth-child(5) { animation-delay: 0.3s; }
+.panel:nth-child(6) { animation-delay: 0.35s; }
+.panel:nth-child(7) { animation-delay: 0.4s; }
+.panel:nth-child(8) { animation-delay: 0.45s; }
 
-/* Animación para el botón de chat flotante */
-.chat-launcher {
-  animation: pulseGlow 2s ease-in-out infinite;
+/* ==============================
+   KPIs ANIMADOS
+   ============================== */
+.grid > a.panel {
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) backwards;
 }
 
-.chat-launcher:hover {
-  animation-play-state: paused;
+.grid > a.panel:nth-child(1) { animation-delay: 0.1s; }
+.grid > a.panel:nth-child(2) { animation-delay: 0.15s; }
+.grid > a.panel:nth-child(3) { animation-delay: 0.2s; }
+.grid > a.panel:nth-child(4) { animation-delay: 0.25s; }
+
+/* Números contadores animados */
+.text-2xl.font-bold {
+  background: linear-gradient(90deg, white, #c6f24e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease infinite;
 }
 
-/* Animación para el modal de ajustes */
-.settings-modal {
-  animation: fadeIn 0.3s ease;
-}
-
-.settings-panel {
-  animation: scaleIn 0.3s ease-out;
-}
-
-/* Animación para la barra de progreso */
-.progress-fill {
-  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+/* Progress bars animadas */
+.progress-bar {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
   overflow: hidden;
+  position: relative;
+  height: 6px;
+}
+
+.progress-fill {
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), #a8e93a);
 }
 
 .progress-fill::after {
@@ -138,116 +229,205 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
   animation: shimmer 2s infinite;
 }
 
-/* Nueva organización: Grid animado */
-.canvas {
-  animation: fadeIn 0.8s ease-out;
-}
-
-/* Efecto de entrada para las métricas */
-.canvas .grid > * {
-  animation: slideInUp 0.6s ease-out backwards;
-}
-
-/* Efecto hover mejorado */
-.panel a {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.panel a:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-/* Animación de entrada del perfil widget */
-.profile-widget {
-  animation: slideInRight 0.5s ease-out 0.3s backwards;
-}
-
-/* Animación para botones */
-.btn {
+/* ==============================
+   CHAT FLOTANTE
+   ============================== */
+.chat-launcher {
+  animation: pulseGlow 2s ease-in-out infinite;
   position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
 }
 
-.btn::before {
+.chat-launcher::before {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.3), transparent 70%);
   transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
+  border-radius: 50%;
+  animation: ripple 2s ease-out infinite;
 }
 
-.btn:active::before {
-  width: 300px;
-  height: 300px;
+.chat-floater-window {
+  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Organiza el menú superior con mejor espaciado */
-.top-bar {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  padding: 0 24px;
-  height: 64px;
+.chat-floater-window.minimized {
+  animation: slideInUp 0.3s ease-out;
 }
 
-.nav {
-  display: flex;
-  gap: 24px;
-  align-items: center;
+/* ==============================
+   MODALES
+   ============================== */
+.settings-modal {
+  animation: fadeIn 0.4s ease;
 }
 
-/* Mejora visual del botón de ajustes */
-.nav a[href="#"] {
-  background: rgba(198, 242, 78, 0.1);
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(198, 242, 78, 0.2);
+.settings-panel {
+  animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ==============================
+   BOTONES
+   ============================== */
+.btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #c6f24e, #a8e93a);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn.primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.btn.primary:hover::before {
+  left: 100%;
+}
+
+/* ==============================
+   PILDORAS / TAGS
+   ============================== */
+.pill {
+  animation: slideInLeft 0.5s ease-out backwards;
   transition: all 0.3s ease;
 }
 
-.nav a[href="#"]:hover {
-  background: rgba(198, 242, 78, 0.2);
-  transform: translateY(-1px);
+.pill:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Responsive mejorado */
-@media (max-width: 768px) {
-  .top-bar {
-    gap: 16px;
-    padding: 0 16px;
-  }
-  
-  .nav {
-    gap: 12px;
-    font-size: 13px;
-  }
-  
-  .panel {
-    animation: slideInUp 0.4s ease-out backwards;
-  }
+/* ==============================
+   PERFIL WIDGET
+   ============================== */
+.profile-widget {
+  animation: slideInRight 0.5s ease-out 0.3s backwards;
+  transition: all 0.3s ease;
 }
 
-/* Estados de carga animados */
+.profile-widget:hover {
+  transform: scale(1.03);
+}
+
+/* ==============================
+   LOADING SKELETONS
+   ============================== */
 .loading-skeleton {
   background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
-/* Transición suave para tema */
+/* ==============================
+   TRANSICIONES GLOBALES
+   ============================== */
 * {
-  transition-property: background-color, border-color, color, fill, stroke;
+  transition-property: background-color, border-color, color, transform, box-shadow, opacity;
   transition-duration: 0.3s;
-  transition-timing-function: ease;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Scrollbar personalizada animada */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent), #a8e93a);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #a8e93a, var(--accent));
+  box-shadow: 0 0 10px rgba(198, 242, 78, 0.5);
+}
+
+/* Efectos de entrada por tipo de contenido */
+.canvas > section {
+  animation-delay: 0.1s;
+}
+
+.canvas > .grid {
+  animation-delay: 0.2s;
+}
+
+/* Animación de escritura simulada */
+.typing-indicator span {
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Efecto hover para enlaces interactivos */
+a {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  transform: translateX(2px);
+}
+
+/* Animación de entrada para nuevos elementos */
+@keyframes enterFromBottom {
+  from {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.new-item {
+  animation: enterFromBottom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Efecto de brillo en hover */
+.shine-on-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-on-hover::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 20%;
+  height: 200%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transform: rotate(25deg);
+  transition: left 0.6s ease;
+}
+
+.shine-on-hover:hover::after {
+  left: 120%;
 }
