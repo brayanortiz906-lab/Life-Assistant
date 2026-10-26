@@ -361,4 +361,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Expose globally for debugging
-window.MiAsistente = { state, updateKpis, ChatEngine, ActionHandlers };
+window.MiAsistente = { state, updateKpis, ActionHandlers };
