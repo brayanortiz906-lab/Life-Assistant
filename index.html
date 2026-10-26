@@ -309,6 +309,35 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       if (typeof lucide !== 'undefined') lucide.createIcons();
+      
+      // Ensure ChatEngine is available
+      setTimeout(() => {
+        if (typeof ChatEngine !== 'undefined' && typeof window.MiAsistente !== 'undefined') {
+          console.log('✅ Chat AI cargado correctamente');
+          console.log('ChatEngine:', window.ChatEngine);
+          console.log('MiAsistente:', window.MiAsistente);
+        } else {
+          console.error('❌ Chat AI no cargó correctamente');
+          console.log('ChatEngine:', typeof ChatEngine);
+          console.log('MiAsistente:', typeof window.MiAsistente);
+        }
+      }, 500);
+      
+      // Optimized: Lazy load non-critical systems
+      setTimeout(() => {
+        // Preload other pages on hover
+        document.querySelectorAll('a[href$=".html"]').forEach(link => {
+          link.addEventListener('mouseenter', () => {
+            const href = link.getAttribute('href');
+            if (href && !href.startsWith('#')) {
+              const linkEl = document.createElement('link');
+              linkEl.rel = 'prefetch';
+              linkEl.href = href;
+              document.head.appendChild(linkEl);
+            }
+          }, { once: true });
+        });
+      }, 1000);
     });
   </script>
   <style>

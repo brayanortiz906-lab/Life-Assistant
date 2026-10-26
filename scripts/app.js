@@ -44,13 +44,21 @@ function updateKpis() {
 }
 
 // KPI actions (kept for chat integration)
-function incrementTasks() { state.tasks += 1; updateKpis(); }
-function addStudyTime() { state.studyHours = Math.min(state.studyHours + 0.25, 3); updateKpis(); }
-function addExpense() { state.expenses += 5; updateKpis(); }
-function drinkWater() { state.water = Math.min(state.water + 0.25, 3); updateKpis(); }
-function advanceCourse() { state.courseStep = (state.courseStep % 5) + 1; updateKpis(); }
+// Make these available globally for ChatEngine
+window.incrementTasks = function() { state.tasks += 1; updateKpis(); return `Tareas completadas: ${state.tasks}`; }
+window.addStudyTime = function() { state.studyHours = Math.min(state.studyHours + 0.25, 3); updateKpis(); return `Tiempo de estudio actualizado: ${state.studyHours}h`; }
+window.addExpense = function() { state.expenses += 5; updateKpis(); return `Gasto registrado: $${state.expenses.toFixed(2)}`; }
+window.drinkWater = function() { state.water = Math.min(state.water + 0.25, 3); updateKpis(); return `Agua registrada: ${state.water.toFixed(1)}L`; }
+window.advanceCourse = function() { state.courseStep = (state.courseStep % 5) + 1; updateKpis(); return `Curso avanzado al módulo ${state.courseStep}`; }
 
-// Chat floating modal handling
+// Also keep local versions for backward compatibility
+function incrementTasks() { window.incrementTasks(); }
+function addStudyTime() { window.addStudyTime(); }
+function addExpense() { window.addExpense(); }
+function drinkWater() { window.drinkWater(); }
+function advanceCourse() { window.advanceCourse(); }
+
+// Chat UI Functions
 function openChat() {
   const modal = $('chat-modal');
   modal.classList.remove('hidden');
@@ -230,7 +238,13 @@ async function handleAiSubmit(e) {
     return;
   }
 
-  // Process with ChatEngine
+  // Process with ChatEngine - Check if loaded
+  if (typeof ChatEngine === 'undefined') {
+    addChatMessage('⚠️ ChatEngine no está cargado todavía. Recargando...');
+    setTimeout(() => handleAiSubmit(e), 500);
+    return;
+  }
+  
   const result = ChatEngine.process(query);
 
   let response = '';

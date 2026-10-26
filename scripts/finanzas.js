@@ -4,6 +4,32 @@ const FinanzasSystem = {
   transactions: [],
   budgets: {},
   currentChartView: 'bar',
+  chartCache: {
+    data: null,
+    timestamp: 0,
+    get(expensesByCat) {
+      const now = Date.now();
+      if (now - this.timestamp < 30000 && this.data) {
+        return this.data;
+      }
+      this.data = expensesByCat;
+      this.timestamp = now;
+      return this.data;
+    }
+  },
+  
+  // Utility: Debounce
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    }
+  },
   categories: {
     expense: [
       { id: 'food', name: 'Comida', icon: '🍔', color: '#ef4444' },
@@ -26,6 +52,10 @@ const FinanzasSystem = {
     this.loadData();
     this.renderDashboard();
     this.bindEvents();
+    // Optimized: Pre-cache initial data
+    requestAnimationFrame(() => {
+      this.renderChart();
+    });
   },
 
   loadData() {
@@ -287,11 +317,18 @@ const FinanzasSystem = {
     // Filter selects
     document.getElementById('filter-type')?.addEventListener('change', () => this.applyFilters());
     document.getElementById('filter-category')?.addEventListener('change', () => this.applyFilters());
+    
+    // Optimized: Debounced resize handler
+    const handleResize = this.debounce(() => {
+      this.renderChart();
+    }, 250);
+    window.addEventListener('resize', handleResize);
   },
 
   toggleChartView(view) {
     // view: 'bar' or 'pie'
     this.currentChartView = view;
+    
     // Update active button state
     document.getElementById('chart-bar-btn')?.classList.toggle('active', view === 'bar');
     document.getElementById('chart-pie-btn')?.classList.toggle('active', view === 'pie');
@@ -301,8 +338,12 @@ const FinanzasSystem = {
     const ctx = canvas.getContext('2d');
     const month = this.getCurrentMonth();
     const expensesByCat = this.getExpensesByCategory(month);
-    const cats = this.categories.expense.filter(c => expensesByCat[c.id] > 0);
-    const data = cats.map(c => ({ label: c.name, value: expensesByCat[c.id], color: c.color }));
+    
+    // Optimized: Use cache
+    const cachedData = this.chartCache.get(expensesByCat);
+    
+    const cats = this.categories.expense.filter(c => cachedData[c.id] > 0);
+    const data = cats.map(c => ({ label: c.name, value: cachedData[c.id], color: c.color }));
     // Clear
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (view === 'pie') {

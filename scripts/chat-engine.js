@@ -530,13 +530,18 @@ const ChatEngine = {
   }
 };
 
-// Initialize on load
-document.addEventListener('DOMContentLoaded', () => {
-  ChatEngine.init();
-  window.ChatEngine = ChatEngine; // Expose globally for debugging
-});
-
-// Export for module systems
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ChatEngine;
+// Initialize immediately
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      ChatEngine.init();
+      window.ChatEngine = ChatEngine; // Expose globally for debugging
+    });
+  } else {
+    ChatEngine.init();
+    window.ChatEngine = ChatEngine; // Expose globally for debugging
+  }
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ChatEngine;
+  }
 }

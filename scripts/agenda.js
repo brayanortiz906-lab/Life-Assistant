@@ -1,3 +1,48 @@
+// Virtual Scrolling System
+const VirtualScroll = {
+  // Generic virtual scroll implementation
+  create(container, items, renderItem, itemHeight = 100) {
+    const state = {
+      items,
+      container,
+      itemHeight,
+      visibleCount: 0,
+      scrollTop: 0,
+      startIdx: 0
+    };
+    
+    const update = () => {
+      const viewportHeight = container.offsetHeight;
+      state.visibleCount = Math.ceil(viewportHeight / itemHeight) + 2;
+      state.scrollTop = container.scrollTop;
+      state.startIdx = Math.floor(state.scrollTop / itemHeight);
+      
+      const start = Math.max(0, state.startIdx);
+      const end = Math.min(state.items.length, start + state.visibleCount);
+      
+      const visibleItems = state.items.slice(start, end);
+      const offsetY = start * itemHeight;
+      
+      container.innerHTML = `
+        <div style="height:${state.items.length * itemHeight}px;position:relative;">
+          <div style="transform:translateY(${offsetY}px);">
+            ${visibleItems.map(item => renderItem(item)).join('')}
+          </div>
+        </div>
+      `;
+    };
+    
+    container.style.overflowY = 'auto';
+    container.style.position = 'relative';
+    container.addEventListener('scroll', () => {
+      requestAnimationFrame(update);
+    });
+    
+    update();
+    return { update, render: update };
+  }
+};
+
 // Agenda System - Calendar & Events Management (Improved)
 
 const AgendaSystem = {
@@ -137,28 +182,38 @@ const AgendaSystem = {
       return;
     }
 
-    const morning = dayEvents.filter(e => parseInt(e.start.split(':')[0]) < 12);
-    const afternoon = dayEvents.filter(e => parseInt(e.start.split(':')[0]) >= 12 && parseInt(e.start.split(':')[0]) < 18);
-    const evening = dayEvents.filter(e => parseInt(e.start.split(':')[0]) >= 18);
+    // Use virtual scrolling for large lists
+    if (dayEvents.length > 50) {
+      VirtualScroll.create(
+        container,
+        dayEvents,
+        (event) => this.renderEventCard(event),
+        80
+      );
+    } else {
+      const morning = dayEvents.filter(e => parseInt(e.start.split(':')[0]) < 12);
+      const afternoon = dayEvents.filter(e => parseInt(e.start.split(':')[0]) >= 12 && parseInt(e.start.split(':')[0]) < 18);
+      const evening = dayEvents.filter(e => parseInt(e.start.split(':')[0]) >= 18);
 
-    container.innerHTML = `
-      <div class="space-y-4">
-        <div class="flex items-center justify-between mb-2">
-          <h4 class="font-semibold text-sm flex items-center gap-2">
-            <span class="text-lg">${isToday ? '📍 Hoy' : '📅'}</span>
-            ${dayEvents.length} evento${dayEvents.length > 1 ? 's' : ''} • ${dateLabel}
-          </h4>
-          <button class="btn text-xs" onclick="AgendaSystem.openEventModal()">
-            <svg class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-            Nuevo
-          </button>
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-semibold text-sm flex items-center gap-2">
+              <span class="text-lg">${isToday ? '📍 Hoy' : '📅'}</span>
+              ${dayEvents.length} evento${dayEvents.length > 1 ? 's' : ''} • ${dateLabel}
+            </h4>
+            <button class="btn text-xs" onclick="AgendaSystem.openEventModal()">
+              <svg class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              Nuevo
+            </button>
+          </div>
+          
+          ${this.renderTimeBlock('🌅 Mañana', morning)}
+          ${this.renderTimeBlock('☀️ Tarde', afternoon)}
+          ${this.renderTimeBlock('🌙 Noche', evening)}
         </div>
-        
-        ${this.renderTimeBlock('🌅 Mañana', morning)}
-        ${this.renderTimeBlock('☀️ Tarde', afternoon)}
-        ${this.renderTimeBlock('🌙 Noche', evening)}
-      </div>
-    `;
+      `;
+    }
   },
 
   renderTimeBlock(title, events) {
