@@ -21,6 +21,11 @@
 </head>
 <body class="dark">
 
+  <!-- Under Construction Banner -->
+  <div class="w-full bg-accent/20 border-b border-accent/30 px-4 py-2 text-center text-xs text-accent font-medium">
+    ⚠️ EN CONSTRUCCIÓN — Las funcionalidades se están implementando progresivamente
+  </div>
+
   <!-- Header / Nav -->
   <header class="top-bar">
     <a href="index.html" class="logo flex items-center gap-2">
@@ -264,13 +269,15 @@
     </div>
   </main>
 
-  <!-- Floating Chat AI Launcher -->
-  <button class="chat-float" onclick="openChat()" title="Abrir Chat IA">
-    <i data-lucide="bot" class="w-6 h-6"></i>
+  <!-- Floating Chat AI Launcher - Simple & Reliable -->
+  <button class="chat-float" onclick="document.getElementById('chat-modal').classList.toggle('hidden')" title="Abrir Chat IA" style="z-index: 10000 !important;">
+    <span style="font-size: 24px;">💬</span>
   </button>
 
-  <!-- Floating Chat Modal -->
-  <div id="chat-modal" class="chat-modal hidden">
+  <!-- Floating Chat Modal - Simple & Reliable -->
+  <div id="chat-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 9999;">
+
+  </div>
     <div class="panel flex flex-col h-full">
       <header class="flex justify-between items-center mb-4 pb-3 border-b border-border">
         <div class="flex items-center gap-2">
@@ -282,8 +289,8 @@
             <p class="text-[10px] text-secondary">En línea</p>
           </div>
         </div>
-        <button class="btn text-xs p-1.5" onclick="closeChat()" title="Cerrar">
-          <i data-lucide="x" class="w-4 h-4"></i>
+        <button class="btn text-xs p-1.5" onclick="document.getElementById('chat-modal').classList.add('hidden')" title="Cerrar" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
+          <span style="font-size: 16px;">✕</span>
         </button>
       </header>
 
@@ -296,8 +303,8 @@
 
       <form class="chat-input-area flex gap-2" onsubmit="handleAiSubmit(event)">
         <input id="ai-input" type="text" placeholder="Escribe tu comando o consulta..." class="input flex-1 text-xs" autocomplete="off">
-        <button type="submit" class="btn primary text-xs px-3">
-          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+        <button type="submit" class="btn primary text-xs px-3" style="background: var(--accent); color: #000; border: none;">
+          <span style="font-size: 14px;">➤</span>
         </button>
       </form>
     </div>
