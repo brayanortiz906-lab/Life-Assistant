@@ -304,11 +304,44 @@
   </div>
 
   <!-- App scripts -->
+  <script src="scripts/chat-engine.js"></script>
   <script src="scripts/app.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       if (typeof lucide !== 'undefined') lucide.createIcons();
     });
   </script>
+  <style>
+    .intent-badge {
+      background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 600;
+      font-family: monospace;
+      margin-left: 6px;
+    }
+    .confidence-badge {
+      background: rgba(34, 197, 94, 0.2);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 600;
+      font-family: monospace;
+    }
+    .chat-msg.system div:first-child {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .chat-input-area input::placeholder {
+      color: var(--faint);
+    }
+  </style>
 </body>
 </html>
