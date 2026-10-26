@@ -64,14 +64,20 @@ const ChatFloater = {
     style.textContent = `
       .chat-floater-container {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         z-index: 99999;
+        pointer-events: none;
         font-family: 'Inter', sans-serif;
       }
       
       .chat-floater-window {
-        position: absolute;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         width: 360px;
         height: 480px;
         background: rgba(10, 10, 10, 0.95);
@@ -83,6 +89,7 @@ const ChatFloater = {
         flex-direction: column;
         overflow: hidden;
         animation: chatSlideIn 0.3s ease;
+        margin: 0;
       }
       
       @keyframes chatSlideIn {
@@ -221,9 +228,9 @@ const ChatFloater = {
       }
       
       .chat-floater-toggle {
-        position: absolute;
-        bottom: 0;
-        right: 0;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
         width: 56px;
         height: 56px;
         border-radius: 50%;
@@ -236,6 +243,7 @@ const ChatFloater = {
         align-items: center;
         justify-content: center;
         transition: all 0.3s ease;
+        pointer-events: all;
       }
       
       .chat-floater-toggle:hover {
