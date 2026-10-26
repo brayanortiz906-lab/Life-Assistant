@@ -1,0 +1,253 @@
+/* Animaciones y Transiciones - App CSS Extension */
+@keyframes slideInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(198, 242, 78, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(198, 242, 78, 0.5); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Animaciones para la navegación superior */
+.top-bar {
+  animation: slideInDown 0.5s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.top-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: shimmer 3s infinite;
+}
+
+/* Animación hover en enlaces de navegación */
+.nav a {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.nav a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: translateX(-50%);
+  transition: width 0.3s ease;
+}
+
+.nav a:hover::after,
+.nav a.text-accent::after {
+  width: 100%;
+}
+
+/* Animación float para el ícono principal */
+.top-bar .logo svg {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Animación para las cards del dashboard */
+.panel {
+  animation: slideInUp 0.6s ease-out backwards;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panel:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.panel:nth-child(1) { animation-delay: 0.1s; }
+.panel:nth-child(2) { animation-delay: 0.2s; }
+.panel:nth-child(3) { animation-delay: 0.3s; }
+.panel:nth-child(4) { animation-delay: 0.4s; }
+
+/* Animación para el botón de chat flotante */
+.chat-launcher {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.chat-launcher:hover {
+  animation-play-state: paused;
+}
+
+/* Animación para el modal de ajustes */
+.settings-modal {
+  animation: fadeIn 0.3s ease;
+}
+
+.settings-panel {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Animación para la barra de progreso */
+.progress-fill {
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: shimmer 2s infinite;
+}
+
+/* Nueva organización: Grid animado */
+.canvas {
+  animation: fadeIn 0.8s ease-out;
+}
+
+/* Efecto de entrada para las métricas */
+.canvas .grid > * {
+  animation: slideInUp 0.6s ease-out backwards;
+}
+
+/* Efecto hover mejorado */
+.panel a {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panel a:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Animación de entrada del perfil widget */
+.profile-widget {
+  animation: slideInRight 0.5s ease-out 0.3s backwards;
+}
+
+/* Animación para botones */
+.btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Organiza el menú superior con mejor espaciado */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 0 24px;
+  height: 64px;
+}
+
+.nav {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+/* Mejora visual del botón de ajustes */
+.nav a[href="#"] {
+  background: rgba(198, 242, 78, 0.1);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(198, 242, 78, 0.2);
+  transition: all 0.3s ease;
+}
+
+.nav a[href="#"]:hover {
+  background: rgba(198, 242, 78, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Responsive mejorado */
+@media (max-width: 768px) {
+  .top-bar {
+    gap: 16px;
+    padding: 0 16px;
+  }
+  
+  .nav {
+    gap: 12px;
+    font-size: 13px;
+  }
+  
+  .panel {
+    animation: slideInUp 0.4s ease-out backwards;
+  }
+}
+
+/* Estados de carga animados */
+.loading-skeleton {
+  background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Transición suave para tema */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
