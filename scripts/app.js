@@ -58,33 +58,37 @@ function addExpense() { window.addExpense(); }
 function drinkWater() { window.drinkWater(); }
 function advanceCourse() { window.advanceCourse(); }
 
-// Chat UI Functions
+// Chat UI Functions (usa ChatFloaterV2)
 function openChat() {
-  const modal = $('chat-modal');
-  modal.classList.remove('hidden');
-  if (typeof lucide !== 'undefined') lucide.createIcons();
-  setTimeout(() => { $('ai-input').focus(); }, 100);
+  if (window.ChatFloaterV2) {
+    window.ChatFloaterV2.open();
+  }
 }
 function closeChat() {
-  const modal = $('chat-modal');
-  modal.classList.add('hidden');
+  if (window.ChatFloaterV2) {
+    window.ChatFloaterV2.close();
+  }
 }
 
-// Chat message handling
+// Chat message handling - usa ChatFloaterV2 si está disponible
 function addChatMessage(text, isUser = false, meta = {}) {
-  const container = $('chat-messages');
-  const msg = document.createElement('div');
-  msg.className = `chat-msg ${isUser ? 'user' : 'system'}`;
-  const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-  if (isUser) {
-    msg.innerHTML = `<div>${text}</div>`;
+  if (window.ChatFloaterV2) {
+    window.ChatFloaterV2.addMessage(text, isUser ? 'user' : 'bot');
   } else {
-    const intentBadge = meta.intent ? `<span class="intent-badge">${meta.category}:${meta.intent}</span>` : '';
-    const confidence = meta.confidence ? `<span class="confidence-badge">${(meta.confidence * 100).toFixed(0)}%</span>` : '';
-    msg.innerHTML = `<div class="msg-meta">Mi Asistente · ${time} ${intentBadge} ${confidence}</div><div>${text}</div>`;
+    const container = $('chat-messages');
+    const msg = document.createElement('div');
+    msg.className = `chat-msg ${isUser ? 'user' : 'system'}`;
+    const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    if (isUser) {
+      msg.innerHTML = `<div>${text}</div>`;
+    } else {
+      const intentBadge = meta.intent ? `<span class="intent-badge">${meta.category}:${meta.intent}</span>` : '';
+      const confidence = meta.confidence ? `<span class="confidence-badge">${(meta.confidence * 100).toFixed(0)}%</span>` : '';
+      msg.innerHTML = `<div class="msg-meta">Mi Asistente · ${time} ${intentBadge} ${confidence}</div><div>${text}</div>`;
+    }
+    container.appendChild(msg);
+    container.scrollTop = container.scrollHeight;
   }
-  container.appendChild(msg);
-  container.scrollTop = container.scrollHeight;
 }
 
 // Action handlers for each category
